@@ -6,6 +6,7 @@ interface Answer {
   answer: string;
   escalated: boolean;
   sources: string[];
+  demo?: boolean;
 }
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turns, setTurns] = useState<Array<{ question: string; result: Answer }>>([]);
+  const [demo, setDemo] = useState(false);
 
   async function ask(event: React.FormEvent) {
     event.preventDefault();
@@ -33,6 +35,7 @@ export default function Home() {
       if (!response.ok) throw new Error(data.error ?? 'Error desconocido');
 
       setTurns((prev) => [...prev, { question: trimmed, result: data as Answer }]);
+      if ((data as Answer).demo) setDemo(true);
       setQuestion('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -50,6 +53,14 @@ export default function Home() {
           en la base de conocimiento.
         </p>
       </header>
+
+      {demo && (
+        <p className="demo-note">
+          Corriendo en <strong>modo demo</strong>: la base de conocimiento es un FAQ de
+          ejemplo y la búsqueda es léxica, sin embeddings. En modo normal indexa tus
+          documentos en Supabase con pgvector.
+        </p>
+      )}
 
       <section className="log" aria-live="polite">
         {turns.length === 0 && !loading && (

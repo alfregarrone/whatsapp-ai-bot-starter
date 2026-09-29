@@ -11,7 +11,8 @@ Av. Siempreviva 742, Córdoba Capital. Hay estacionamiento sobre la calle latera
 
 ## Formas de pago
 
-Aceptamos efectivo, transferencia bancaria, débito y crédito hasta 3 cuotas sin interés.
+Aceptamos efectivo, transferencia bancaria y tarjeta de débito o crédito, hasta 3 cuotas
+sin interés. No aceptamos cheques.
 Para transferencias, el alias es negocio.ejemplo.ar.
 
 ## Envíos

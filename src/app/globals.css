@@ -171,3 +171,17 @@ footer a {
     flex-direction: column;
   }
 }
+
+.demo-note {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 0.6rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.demo-note strong {
+  color: var(--text);
+}

@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server';
 import { buildMessages, shouldEscalate } from '@/lib/prompt';
 import { chat } from '@/lib/llm';
 import { searchChunks } from '@/lib/db';
+import { isDemoMode } from '@/lib/demo';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,9 +35,10 @@ export async function POST(request: Request) {
 
     if (shouldEscalate(context)) {
       return NextResponse.json({
-        answer: 'No encontré eso en la base de conocimiento.',
+        answer: 'No encontré eso en la base de conocimiento. Te paso con alguien del equipo.',
         escalated: true,
         sources: [],
+        demo: isDemoMode(),
       });
     }
 
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
       answer,
       escalated: false,
       sources: [...new Set(context.map((c) => c.source))],
+      demo: isDemoMode(),
     });
   } catch (error) {
     console.error('[chat]', error);

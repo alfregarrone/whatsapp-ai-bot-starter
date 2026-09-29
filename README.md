@@ -1,3 +1,5 @@
+<img src="docs/social.png" alt="whatsapp-ai-bot-starter" width="100%">
+
 # WhatsApp AI Bot Starter
 
 > Bot de WhatsApp que responde consultas de clientes con los documentos de tu negocio. Next.js + Supabase (pgvector) + el LLM que quieras. Listo para desplegar en Vercel.
@@ -30,6 +32,27 @@ WhatsApp Cloud API
         ▼
   respuesta + registro de la conversación en Postgres
 ```
+
+## Probarlo en 2 minutos (modo demo)
+
+Con `DEMO_MODE=true` el bot arranca sin Supabase y sin claves de embeddings: usa un FAQ
+de ejemplo embebido y búsqueda léxica. Solo hace falta una clave de Groq.
+
+```bash
+git clone https://github.com/alfregarrone/whatsapp-ai-bot-starter.git
+cd whatsapp-ai-bot-starter
+npm install
+echo "DEMO_MODE=true" > .env.local
+echo "GROQ_API_KEY=tu-clave" >> .env.local
+npm run dev
+```
+
+Abrí `http://localhost:3000` y preguntale por horarios, envíos o garantía.
+
+El modo demo existe para que pruebes el flujo completo antes de montar nada, y para
+tener la demo pública andando. **No es el modo de producción**: la búsqueda léxica no
+entiende sinónimos ni reformulaciones, y no persiste conversaciones. Para eso está el
+modo normal, con embeddings en pgvector.
 
 ## Correrlo local
 
@@ -72,6 +95,9 @@ npm install && npm run dev
   servidor. Cuando agregues un panel con login, las políticas se escriben ahí y nada más queda abierto.
 - **Índice ivfflat**, no HNSW: para bases de FAQ (cientos o miles de fragmentos) alcanza y ocupa
   bastante menos.
+- **El modo demo corta por secciones `##`, no por tamaño.** El chunking por tamaño es lo
+  correcto para documentos arbitrarios; para un FAQ donde cada sección es una pregunta,
+  cortar por encabezado da fragmentos que se corresponden uno a uno con las consultas.
 
 **Limitaciones actuales:** solo mensajes de texto (ni audios ni imágenes), un único número de
 WhatsApp, sin panel de administración con login, sin rate limiting por número, y el historial que se
@@ -86,6 +112,13 @@ npm run typecheck
 
 Los tests no le pegan a ninguna API: la lógica que importa (partir documentos, decidir si hay
 contexto suficiente, verificar la firma) está separada de las llamadas de red justamente para eso.
+
+## Contribuir
+
+Los issues abiertos marcan el roadmap. [CONTRIBUTING.md](CONTRIBUTING.md) tiene el flujo
+y las reglas de la casa (nada de claves en el repo, la lógica testeable separada de la red).
+
+El CI corre tests, typecheck y build en cada push, y CodeQL analiza el código semanalmente.
 
 ## Licencia
 

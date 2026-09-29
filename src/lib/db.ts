@@ -8,6 +8,7 @@
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { embed } from './llm';
+import { isDemoMode, searchDemoChunks } from './demo';
 import type { RetrievedChunk } from './prompt';
 
 let client: SupabaseClient | null = null;
@@ -25,8 +26,15 @@ export function db(): SupabaseClient {
   return client;
 }
 
-/** Busca los fragmentos más parecidos a la consulta. */
+/**
+ * Busca los fragmentos más parecidos a la consulta.
+ *
+ * En modo demo (`DEMO_MODE=true`) no toca Supabase: usa el FAQ embebido y
+ * coincidencia léxica, para que el bot se pueda probar sin montar nada.
+ */
 export async function searchChunks(question: string, limit = 5): Promise<RetrievedChunk[]> {
+  if (isDemoMode()) return searchDemoChunks(question, limit);
+
   const embedding = await embed(question);
 
   const { data, error } = await db().rpc('match_chunks', {
@@ -43,8 +51,14 @@ export async function searchChunks(question: string, limit = 5): Promise<Retriev
   }));
 }
 
-/** Devuelve (o crea) la conversación de un número de teléfono. */
+/**
+ * Devuelve (o crea) la conversación de un número de teléfono.
+ *
+ * En modo demo no hay base: se devuelve un id sintético y nada se persiste.
+ */
 export async function getOrCreateConversation(phone: string): Promise<string> {
+  if (isDemoMode()) return `demo:${phone}`;
+
   const existing = await db()
     .from('conversations')
     .select('id')
@@ -67,6 +81,8 @@ export async function getHistory(
   conversationId: string,
   limit = 10,
 ): Promise<Array<{ role: 'user' | 'assistant'; content: string }>> {
+  if (isDemoMode()) return [];
+
   const { data, error } = await db()
     .from('messages')
     .select('role, content')
@@ -85,6 +101,8 @@ export async function saveMessage(
   content: string,
   externalId?: string,
 ): Promise<void> {
+  if (isDemoMode()) return;
+
   const { error } = await db()
     .from('messages')
     .insert({ conversation_id: conversationId, role, content, external_id: externalId ?? null });
@@ -97,6 +115,8 @@ export async function saveMessage(
 
 /** `true` si ese messageId de WhatsApp ya fue procesado. */
 export async function alreadyProcessed(externalId: string): Promise<boolean> {
+  if (isDemoMode()) return false;
+
   const { data } = await db()
     .from('messages')
     .select('id')
